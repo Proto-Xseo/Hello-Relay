@@ -1,0 +1,14 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "en0PL6V3ZY4gRJ3cCMKMC"
+uri = "file://relay_north.html"
+type = "unspecified"
+title = "Relay Landing — north-mini-code-free (complete)"
+
+[[outputs]]
+id = "KL-bdPIQUwSdO18750Fzo"
+uri = "file://relay_nemotron.html"
+type = "unspecified"
+title = "Relay Landing — nemotron-3-ultra-free (larger, auto-closed)"

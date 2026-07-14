@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Relay</title>
+<style>
+body{background:#0f0a1e;color:#fff;font-family:sans-serif;margin:0}
+.nav{position:sticky;top:0;background:#0f0a1e;padding:1rem;display:flex;justify-content:space-between;z-index:1000}
+.nav a{color:#7C3AED;margin:0 1rem;text-decoration:none}
+.hero{text-align:center;padding:4rem 1rem}
+.hero h1{font-size:3rem;color:#7C3AED;margin:0}
+.hero .cta button{background:#7C3AED;color:#fff;border:none;padding:.75rem 1.5rem;margin:.5rem;border-radius:5px;cursor:pointer}
+.hero .cta button:nth-child(2){background:#4F46E5}
+.features{display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;padding:2rem}
+.feature{background:#1a173a;padding:2rem;border-radius:10px;flex:1 1 250px;max-width:300px}
+.pricing{display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;padding:2rem}
+.tier{background:#1a173a;padding:2rem;border-radius:10px;text-align:center;flex:1 1 200px}
+.testimonial{text-align:center;padding:2rem;font-style:italic}
+footer{text-align:center;padding:1rem;background:#0f0a1e}
+.fade{opacity:0;transform:translateY(20px);transition:all .6s ease}
+.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div><strong>Relay</strong></div>
+  <div><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#testimonials">Testimonial</a></div>
+</nav>
+
+<section class="hero fade">
+  <h1>Relay</h1>
+  <div class="cta">
+    <button>Sign Up</button>
+    <button>Learn More</button>
+  </div>
+</section>
+
+<section id="features" class="features fade">
+  <div class="feature"><h3>Instant Sync</h3><p>Seamlessly sync across all your devices in real time.</p></div>
+  <div class="feature"><h3>Secure Channel</h3><p>End‑to‑end encryption keeps your conversations private.</p></div>
+  <div class="feature"><h3>Smart Routing</h3><p>Intelligently choose the fastest path for your data.</p></div>
+</section>
+
+<section id="pricing" class="pricing fade">
+  <div class="tier">
+    <h3>Free</h3>
+    <p>$0/mo</p>
+    <ul style="list-style:none;padding:0"><li>Basic features</li><li>1 device sync</li></ul>
+    <button>Choose</button>
+  </div>
+  <div class="tier">
+    <h3>Pro</h3>
+    <p>$9/mo</p>
+    <ul style="list-style:none;padding:0"><li>All free features</li><li>Unlimited devices</li><li>Priority support</li></ul>
+    <button>Choose</button>
+  </div>
+  <div class="tier">
+    <h3>Enterprise</h3>
+    <p>Custom</p>
+    <ul style="list-style:none;padding:0"><li>Advanced security</li><li>Dedicated manager</li></ul>
+    <button>Contact</button>
+  </div>
+</section>
+
+<section id="testimonials" class="testimonial fade">
+  <p>“Relay transformed our team’s workflow. Fast, secure, and reliable!”</p>
+  <strong>— Alex Rivera, CTO</strong>
+</section>
+
+<footer>© 2024 Relay. All rights reserved.</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){const s=document.querySelectorAll('section.fade');const o=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show');})},{threshold:.1});s.forEach(e=>o.observe(e));});
+</script>
+</body>
+</html>
