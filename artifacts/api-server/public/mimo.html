@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relay — Where Conversations Come Alive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --purple-50: #faf5ff;
+    --purple-100: #f3e8ff;
+    --purple-200: #e9d5ff;
+    --purple-300: #d8b4fe;
+    --purple-400: #c084fc;
+    --purple-500: #a855f7;
+    --purple-600: #9333ea;
+    --purple-700: #7e22ce;
+    --purple-800: #6b21a8;
+    --purple-900: #581c87;
+    --indigo-400: #818cf8;
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --violet-400: #a78bfa;
+    --violet-500: #8b5cf6;
+    --violet-600: #7c3aed;
+    --dark-900: #0a0a0f;
+    --dark-800: #0f0f1a;
+    --dark-700: #151525;
+    --dark-600: #1a1a2e;
+    --dark-500: #22223a;
+    --dark-400: #2a2a45;
+    --dark-300: #35355a;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.06);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --gradient-primary: linear-gradient(135deg, #7c3aed, #6366f1, #a855f7);
+    --gradient-accent: linear-gradient(135deg, #a855f7, #6366f1);
+    --gradient-glow: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(99, 102, 241, 0.4));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--dark-900);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--dark-800); }
+  ::-webkit-scrollbar-thumb { background: var(--purple-700); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--purple-600); }
+
+  /* Animated background */
+  .bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.3;
+    animation: floatOrb 20s ease-in-out infinite;
+  }
+
+  .bg-orb:nth-child(1) {
+    width: 600px;
+    height: 600px;
+    background: var(--purple-700);
+    top: -200px;
+    right: -200px;
+    animation-delay: 0s;
+    animation-duration: 25s;
+  }
+
+  .bg-orb:nth-child(2) {
+    width: 500px;
+    height: 500px;
+    background: var(--indigo-600);
+    bottom: -150px;
+    left: -150px;
+    animation-delay: -5s;
+    animation-duration: 20s;
+  }
+
+  .bg-orb:nth-child(3) {
+    width: 400px;
+    height: 400px;
+    background: var(--violet-600);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -10s;
+    animation-duration: 30s;
+  }
+
+  @keyframes floatOrb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(100px, -50px) scale(1.1); }
+    50% { transform: translate(-50px, 80px) scale(0.9); }
+    75% { transform: translate(80px, 30px) scale(1.05); }
+  }
+
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* Glass card base */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes typing {
+    0%, 60% { width: 0; }
+    100% { width: 100%; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes rotateGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .nav.scrolled {
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+  }
+
+  .nav-logo svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-accent);
+    border-radius: 1px;
+    transition: width 0.3s ease;
+  }
+
+  .nav-links a:hover {
+    color: var(--text-primary);
+  }
+
+  .nav-links a:hover::after {
+    width: 100%;
+  }
+
+  .nav-cta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-primary {
+    background: var(--gradient-primary);
+    background-size: 200% 200%;
+    color: white;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-large {
+    padding: 16px 36px;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--purple-500);
+    background: rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .btn-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-shimmer:hover::before {
+    left: 100%;
+  }
+
+  /* Mobile nav toggle */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+  }
+
+  .nav-toggle span {
+    width: 24px;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 2rem 80px;
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .hero-content {
+    animation: slideInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px 6px 8px;
+    border-radius: 100px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    color: var(--purple-300);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.6s ease 0.5s both;
+  }
+
+  .hero-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+  }
+
+  .hero-title .gradient-text {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-title .shimmer-text {
+    background: linear-gradient(90deg, var(--purple-300), var(--indigo-400), var(--violet-400), var(--purple-300));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  .hero-description {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 520px;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+  }
+
+  .hero-stat {
+    text-align: left;
+  }
+
+  .hero-stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Hero visual */
+  .hero-visual {
+    position: relative;
+    animation: slideInRight 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  }
+
+  .hero-chat-window {
+    background: rgba(15, 15, 26, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 100px rgba(139, 92, 246, 0.1);
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .chat-header-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .chat-header-dots span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .chat-header-dots span:nth-child(1) { background: #ef4444; }
+  .chat-header-dots span:nth-child(2) { background: #eab308; }
+  .chat-header-dots span:nth-child(3) { background: #22c55e; }
+
+  .chat-header-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .chat-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 320px;
+  }
+
+  .chat-message {
+    display: flex;
+    gap: 12px;
+    animation: fadeInUp 0.5s ease both;
+  }
+
+  .chat-message:nth-child(1) { animation-delay: 1s; }
+  .chat-message:nth-child(2) { animation-delay: 1.5s; }
+  .chat-message:nth-child(3) { animation-delay: 2s; }
+  .chat-message:nth-child(4) { animation-delay: 2.5s; }
+  .chat-message:nth-child(5) { animation-delay: 3s; }
+
+  .chat-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .chat-avatar.purple { background: var(--gradient-primary); }
+  .chat-avatar.indigo { background: linear-gradient(135deg, #6366f1, #818cf8); }
+  .chat-avatar.violet { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+  .chat-avatar.pink { background: linear-gradient(135deg, #ec4899, #f472b6); }
+  .chat-avatar.teal { background: linear-gradient(135deg, #14b8a6, #2dd4bf); }
+
+  .chat-bubble {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 4px 16px 16px 16px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 280px;
+  }
+
+  .chat-bubble strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .chat-typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 16px;
+  }
+
+  .chat-typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  .chat-input-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .chat-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+
+  .chat-send {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--gradient-primary);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: transform 0.2s ease;
+  }
+
+  .chat-send:hover {
+    transform: scale(1.05);
+  }
+
+  /* Floating elements around hero */
+  .hero-float-emoji {
+    position: absolute;
+    font-size: 2rem;
+    animation: float 4s ease-in-out infinite;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .hero-float-emoji:nth-child(1) {
+    top: 10%;
+    right: -5%;
+    animation-delay: 0s;
+  }
+
+  .hero-float-emoji:nth-child(2) {
+    bottom: 15%;
+    right: 5%;
+    animation-delay: -1s;
+  }
+
+  .hero-float-emoji:nth-child(3) {
+    top: 50%;
+    left: -8%;
+    animation-delay: -2s;
+  }
+
+  /* Section Styles */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 2rem;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    color: var(--purple-400);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-header .section-description {
+    margin: 0 auto;
+  }
+
+  /* Features Section */
+  .features {
+    background: transparent;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(139, 92, 246, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 60px rgba(139, 92, 246, 0.05);
+  }
+
+  .feature-card:hover::before {
+    opacity: 1;
+  }
+
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.5rem;
+    position: relative;
+  }
+
+  .feature-icon.purple-icon {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--purple-400);
+  }
+
+  .feature-icon.indigo-icon {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--indigo-400);
+  }
+
+  .feature-icon.violet-icon {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--violet-400);
+  }
+
+  .feature-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+  }
+
+  .feature-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1rem;
+  }
+
+  .feature-tag.new {
+    background: rgba(34, 197, 94, 0.12);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .feature-tag.popular {
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.2);
+  }
+
+  /* Showcase / Highlight Section */
+  .showcase {
+    position: relative;
+  }
+
+  .showcase-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    padding: 3rem 0;
+  }
+
+  .showcase-block + .showcase-block {
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .showcase-block.reverse {
+    direction: rtl;
+  }
+
+  .showcase-block.reverse > * {
+    direction: ltr;
+  }
+
+  .showcase-content {
+    padding-right: 2rem;
+  }
+
+  .showcase-content .section-label {
+    margin-bottom: 1rem;
+  }
+
+  .showcase-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .showcase-text {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .showcase-visual {
+    position: relative;
+  }
+
+  .showcase-card {
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .showcase-card-inner {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .showcase-illustration {
+    width: 100%;
+    height: 300px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .channel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: default;
+    transition: all 0.2s ease;
+  }
+
+  .channel-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+  }
+
+  .channel-item.active {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--purple-300);
+  }
+
+  .channel-item svg {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+  }
+
+  .channel-item.active svg {
+    opacity: 1;
+  }
+
+  .channel-badge {
+    margin-left: auto;
+    background: var(--purple-600);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .voice-users {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 12px;
+    padding-left: 28px;
+  }
+
+  .voice-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 4px 0;
+  }
+
+  .voice-user-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+  }
+
+  /* Pricing Section */
+  .pricing {
+    position: relative;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .pricing-card {
+    padding: 2.5rem;
+    border-radius: 24px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .pricing-card.featured {
+    background: rgba(139, 92, 246, 0.08);
+    border-color: rgba(139, 92, 246, 0.25);
+    box-shadow: 0 0 80px rgba(139, 92, 246, 0.1);
+    transform: scale(1.03);
+  }
+
+  .pricing-card.featured:hover {
+    transform: scale(1.03) translateY(-4px);
+  }
+
+  .pricing-popular {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 16px;
+    border-radius: 100px;
+    background: var(--gradient-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .pricing-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .pricing-description {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .pricing-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 2rem;
+  }
+
+  .pricing-currency {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .pricing-amount {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .pricing-card.featured .pricing-amount {
+    background: linear-gradient(135deg, #e9d5ff, #c084fc, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .pricing-period {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .pricing-features {
+    list-style: none;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .pricing-features li svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--purple-400);
+  }
+
+  .pricing-card .btn {
+    width: 100%;
+    padding: 14px;
+  }
+
+  /* Testimonials Section */
+  .testimonials {
+    position: relative;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .testimonial-card {
+    padding: 2rem;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(139, 92, 246, 0.2);
+  }
+
+  .testimonial-stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 1rem;
+  }
+
+  .testimonial-stars svg {
+    width: 16px;
+    height: 16px;
+    color: #fbbf24;
+    fill: #fbbf24;
+  }
+
+  .testimonial-text {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .testimonial-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+  }
+
+  .testimonial-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .testimonial-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .testimonial-role {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* CTA Section */
+  .cta {
+    position: relative;
+  }
+
+  .cta-card {
+    text-align: center;
+    padding: 4rem;
+    border-radius: 32px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.08));
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.05), transparent, rgba(99, 102, 241, 0.05), transparent);
+    animation: rotateGlow 20s linear infinite;
+  }
+
+  .cta-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .cta-text {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cta-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+  }
+
+  .cta-note svg {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    vertical-align: -2px;
+    margin-right: 4px;
+  }
+
+  /* Footer */
+  .footer {
+    position: relative;
+    z-index: 1;
+    padding: 60px 2rem 30px;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .footer-brand p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-top: 1rem;
+    max-width: 300px;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+  }
+
+  .footer-social a {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .footer-social a:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: var(--purple-400);
+    transform: translateY(-2px);
+  }
+
+  .footer-column h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+  }
+
+  .footer-column ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-column a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+
+  .footer-column a:hover {
+    color: var(--purple-400);
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-bottom p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-bottom-links a {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-bottom-links a:hover {
+    color: var(--text-secondary);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero-content {
+      order: 1;
+    }
+
+    .hero-visual {
+      order: 2;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .hero-description {
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-buttons {
+      justify-content: center;
+    }
+
+    .hero-stats {
+      justify-content: center;
+    }
+
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .showcase-block {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .showcase-block.reverse {
+      direction: ltr;
+    }
+
+    .pricing-grid {
+      grid-template-columns: 1fr;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .pricing-card.featured {
+      transform: none;
+    }
+
+    .pricing-card.featured:hover {
+      transform: translateY(-4px);
+    }
+
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+    }
+
+    .nav-toggle {
+      display: flex;
+    }
+
+    .nav-cta .btn-ghost {
+      display: none;
+    }
+
+    .hero {
+      padding: 100px 1.5rem 60px;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+    }
+
+    .hero-stats {
+      gap: 2rem;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .showcase-content {
+      padding-right: 0;
+    }
+
+    .cta-card {
+      padding: 3rem 1.5rem;
+    }
+
+    .footer-top {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-animation">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <svg viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="10" fill="url(#logo-grad)"/>
+        <path d="M10 13C10 13 13 10 18 10C23 10 26 13 26 13" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M10 20C10 20 13 23 18 23C23 23 26 20 26 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="18" cy="16.5" r="2" fill="white"/>
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="36" y2="36">
+            <stop stop-color="#7c3aed"/>
+            <stop offset="1" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      Relay
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#showcase">Product</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="#" class="btn btn-ghost">Sign In</a>
+      <a href="#" class="btn btn-primary btn-shimmer">Get Started Free</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('show')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Now with AI-powered smart replies
+      </div>
+      <h1 class="hero-title">
+        Where Teams<br>
+        <span class="shimmer-text">Build Together</span>
+      </h1>
+      <p class="hero-description">
+        Relay brings your conversations, communities, and creativity into one place.
+        Fast, secure, and beautifully designed for the way you work and play.
+      </p>
+      <div class="hero-buttons">
+        <a href="#" class="btn btn-primary btn-large btn-shimmer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Start for Free
+        </a>
+        <a href="#showcase" class="btn btn-outline btn-large">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Watch Demo
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-number">12M+</div>
+          <div class="hero-stat-label">Active Users</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number">99.9%</div>
+          <div class="hero-stat-label">Uptime</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number">4.9★</div>
+          <div class="hero-stat-label">Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-chat-window glass-strong">
+        <div class="chat-header">
+          <div class="chat-header-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="chat-header-title"># design-system</div>
+        </div>
+        <div class="chat-body">
+          <div class="chat-message">
+            <div class="chat-avatar purple">A</div>
+            <div class="chat-bubble"><strong>Alex</strong> — Hey team! I've updated the component library with the new glassmorphism cards ✨</div>
+          </div>
+          <div class="chat-message">
+            <div class="chat-avatar indigo">S</div>
+            <div class="chat-bubble"><strong>Sarah</strong> — Looks incredible! The blur effects are so smooth. Let me review the PR.</div>
+          </div>
+          <div class="chat-message">
+            <div class="chat-avatar violet">M</div>
+            <div class="chat-bubble"><strong>Mike</strong> — Love the new animations too. Shipping this to production today 🚀</div>
+          </div>
+          <div class="chat-message">
+            <div class="chat-avatar teal">R</div>
+            <div class="chat-bubble"><strong>Relay Bot</strong> — 📊 Sprint velocity: 42 pts. On track for release! 🎉</div>
+          </div>
+          <div class="chat-typing">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="chat-input-bar">
+          <div class="chat-input">Message #design-system...</div>
+          <button class="chat-send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Features</div>
+      <h2 class="section-title">Everything you need,<br><span style="background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">nothing you don't</span></h2>
+      <p class="section-description">Powerful tools designed for modern teams. From real-time chat to advanced moderation, Relay has it all built in.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon purple-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3 class="feature-title">Real-Time Messaging</h3>
+        <p class="feature-text">Lightning-fast messages with rich media support, reactions, threads, and @mentions that keep conversations organized.</p>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon indigo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3 class="feature-title">Community Spaces</h3>
+        <p class="feature-text">Create public or private communities with customizable roles, channels, and permissions for seamless collaboration.</p>
+        <span class="feature-tag popular">Most Popular</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon violet-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <h3 class="feature-title">Voice & Video</h3>
+        <p class="feature-text">Crystal-clear voice channels and video calls with screen sharing, low latency, and spatial audio for immersive conversations.</p>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon indigo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="feature-title">Enterprise Security</h3>
+        <p class="feature-text">End-to-end encryption, SSO integration, SOC 2 compliance, and advanced admin controls to keep your data safe.</p>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon purple-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 class="feature-title">Screen Sharing</h3>
+        <p class="feature-text">Share your screen in any channel with remote control, annotation tools, and support for multiple monitors.</p>
+        <span class="feature-tag new">New</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon violet-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <h3 class="feature-title">Bot & Integrations</h3>
+        <p class="feature-text">Automate workflows with powerful bots, connect 200+ apps, and build custom integrations with our open API.</p>
+        <span class="feature-tag new">New</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Showcase Section -->
+<section class="showcase" id="showcase">
+  <div class="section-inner">
+    <div class="showcase-block reveal">
+      <div class="showcase-content">
+        <div class="section-label">📡 Channels</div>
+        <h2 class="showcase-title">Organize every conversation</h2>
+        <p class="showcase-text">Keep your community structured with text, voice, and category channels. Drag and drop to reorder, set permissions per channel, and keep the noise out of important discussions.</p>
+        <a href="#" class="btn btn-outline" style="align-self: flex-start;">Learn More →</a>
+      </div>
+      <div class="showcase-visual reveal reveal-delay-2">
+        <div class="showcase-card-inner" style="background: rgba(10, 10, 15, 0.6); border-color: rgba(255,255,255,0.08);">
+          <div class="channel-list">
+            <div class="channel-item active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              general
+              <span class="channel-badge">3</span>
+            </div>
+            <div class="channel-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              design-discussion
+            </div>
+            <div class="channel-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              engineering
+              <span class="channel-badge">12</span>
+            </div>
+            <div class="channel-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              random
+            </div>
+            <div class="channel-item" style="color: var(--text-muted); opacity: 0.7;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              🎙️ Voice Lounge
+            </div>
+            <div class="voice-users">
+              <div class="voice-user"><div class="voice-user-dot"></div> Alex</div>
+              <div class="voice-user"><div class="voice-user-dot"></div> Sarah</div>
+              <div class="voice-user"><div class="voice-user-dot"></div> Mike</div>
+            </div>
+            <div class="channel-item" style="color: var(--text-muted); opacity: 0.7;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              🎬 Screen Share Room
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-block reverse reveal" style="margin-top: 2rem;">
+      <div class="showcase-content">
+        <div class="section-label">🤖 AI Powered</div>
+        <h2 class="showcase-title">Smart features that adapt to you</h2>
+        <p class="showcase-text">Relay AI understands your workflow. Get smart reply suggestions, auto-summarize long threads, translate messages in real-time, and let AI-powered moderation keep your community safe.</p>
+        <a href="#" class="btn btn-outline" style="align-self: flex-start;">Explore AI →</a>
+      </div>
+      <div class="showcase-visual reveal reveal-delay-2">
+        <div class="showcase-card-inner" style="background: rgba(10, 10, 15, 0.6); border-color: rgba(255,255,255,0.08);">
+          <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; padding: 1rem;">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">🤖</div>
+              <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--purple-200); line-height: 1.6;">
+                <strong style="color: var(--purple-300);">AI Summary:</strong><br>
+                Team decided to move the design review to Thursday. Alex will prepare the Figma prototypes. Sarah needs the API specs by Wednesday.
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 14px; font-size: 0.8rem; color: var(--text-secondary); cursor: default; transition: all 0.2s;">
+                💡 Suggest: "I'll have the API docs ready by Tuesday"
+              </div>
+              <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 14px; font-size: 0.8rem; color: var(--text-secondary); cursor: default;">
+                📅 Create calendar event
+              </div>
+              <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 14px; font-size: 0.8rem; color: var(--text-secondary); cursor: default;">
+                ✅ Create task for Sarah
+              </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+              3 action items detected · 1 follow-up needed
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">💎 Pricing</div>
+      <h2 class="section-title">Simple, transparent pricing</h2>
+      <p class="section-description">Start free. Upgrade when you're ready. No hidden fees, no surprises.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal reveal-delay-1">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-description">Perfect for small communities</div>
+        <div class="pricing-price">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount">0</span>
+          <span class="pricing-period">/forever</span>
+        </div>
+        <ul class="pricing-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited messages
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Up to 50 members
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Voice & video calls
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            5 GB file storage
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Basic integrations
+          </li>
+        </ul>
+        <a href="#" class="btn btn-outline">Get Started Free</a>
+      </div>
+
+      <div class="pricing-card featured reveal reveal-delay-2">
+        <div class="pricing-popular">Most Popular</div>
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-description">For growing teams & communities</div>
+        <div class="pricing-price">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount">9</span>
+          <span class="pricing-period">/user/mo</span>
+        </div>
+        <ul class="pricing-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Free
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited members
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            AI-powered features
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            100 GB file storage
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Custom roles & permissions
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Priority support
+          </li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-shimmer">Start Pro Trial</a>
+      </div>
+
+      <div class="pricing-card reveal reveal-delay-3">
+        <div class="pricing-name">Enterprise</div>
+        <div class="pricing-description">For large organizations</div>
+        <div class="pricing-price">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount">29</span>
+          <span class="pricing-period">/user/mo</span>
+        </div>
+        <ul class="pricing-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Pro
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            SSO & SAML
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            End-to-end encryption
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited storage
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Audit logs & compliance
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Dedicated account manager
+          </li>
+        </ul>
+        <a href="#" class="btn btn-outline">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials" id="testimonials">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">💬 Testimonials</div>
+      <h2 class="section-title">Loved by teams worldwide</h2>
+      <p class="section-description">Don't take our word for it — hear from the people who use Relay every day.</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">"Relay completely transformed how our engineering team collaborates. The real-time features are blazing fast, and the AI summaries save us hours every week. It's the Discord we always wanted for work."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background: var(--gradient-primary);">JD</div>
+          <div class="testimonial-info">
+            <span class="testimonial-name">Jamie Davidson</span>
+            <span class="testimonial-role">CTO at CloudForge</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">"We migrated 50,000 community members from three different platforms to Relay in one weekend. The moderation tools are fantastic and our members love the smooth, modern interface."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background: linear-gradient(135deg, #6366f1, #818cf8);">MK</div>
+          <div class="testimonial-info">
+            <span class="testimonial-name">Maria Kim</span>
+            <span class="testimonial-role">Community Lead at PixelArt</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal reveal-delay-3">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">"The API is incredibly well-documented and easy to integrate. We built a custom bot in under two hours that automated our entire onboarding flow. Relay just gets developer experience."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">TW</div>
+          <div class="testimonial-info">
+            <span class="testimonial-name">Tomas Wei</span>
+            <span class="testimonial-role">Senior Dev at Stackline</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+  <div class="section-inner">
+    <div class="cta-card reveal">
+      <h2 class="cta-title">Ready to relay your conversations?</h2>
+      <p class="cta-text">Join millions of users who've already made the switch. It's free to start, takes 30 seconds, and requires no credit card.</p>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-primary btn-large btn-shimmer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Get Started — It's Free
+        </a>
+        <a href="#" class="btn btn-outline btn-large">
+          Talk to Sales
+        </a>
+      </div>
+      <p class="cta-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        No credit card required · Free forever on the basic plan
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="margin-bottom: 0.5rem;">
+          <svg viewBox="0 0 36 36" fill="none" width="32" height="32">
+            <rect width="36" height="36" rx="10" fill="url(#logo-grad2)"/>
+            <path d="M10 13C10 13 13 10 18 10C23 10 26 13 26 13" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M10 20C10 20 13 23 18 23C23 23 26 20 26 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="18" cy="16.5" r="2" fill="white"/>
+            <defs>
+              <linearGradient id="logo-grad2" x1="0" y1="0" x2="36" y2="36">
+                <stop stop-color="#7c3aed"/>
+                <stop offset="1" stop-color="#6366f1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          Relay
+        </a>
+        <p>The modern platform for communities, teams, and creators. Fast, secure, and beautifully designed.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="#" aria-label="GitHub">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+          <a href="#" aria-label="Discord">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-column">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">API Docs</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press Kit</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Community</a></li>
+          <li><a href="#">Status</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Downloads</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Relay Technologies, Inc. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar scroll effect
+  const nav = document.getElementById('nav');
+  let lastScroll = 0;
+
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.scrollY;
+    if (currentScroll > 50) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+    lastScroll = currentScroll;
+  });
+
+  // Intersection Observer for reveal animations
+  const revealElements = document.querySelectorAll('.reveal');
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  });
+
+  revealElements.forEach(el => revealObserver.observe(el));
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+
+  // Counter animation for hero stats
+  function animateCounters() {
+    const stats = document.querySelectorAll('.hero-stat-number');
+    stats.forEach(stat => {
+      const text = stat.textContent;
+      // Simple pulse effect on load
+      stat.style.opacity = '0';
+      stat.style.transform = 'translateY(10px)';
+      setTimeout(() => {
+        stat.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        stat.style.opacity = '1';
+        stat.style.transform = 'translateY(0)';
+      }, 800);
+    });
+  }
+
+  animateCounters();
+
+  // Add hover tilt effect to feature cards
+  const cards = document.querySelectorAll('.feature-card, .pricing-card, .testimonial-card');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = (y - centerY) / 20;
+      const rotateY = (centerX - x) / 20;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+
+  // Mobile menu toggle styles
+  const style = document.createElement('style');
+  style.textContent = `
+    @media (max-width: 768px) {
+      .nav-links.show {
+        display: flex !important;
+        flex-direction: column;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--glass-border);
+        gap: 1.25rem;
+        animation: fadeIn 0.3s ease;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+
+</body></html>
