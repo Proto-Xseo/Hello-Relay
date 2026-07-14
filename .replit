@@ -11,6 +11,23 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "9router"
+
+[[workflows.workflow]]
+name = "9router"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node /home/runner/9router/cli/cli.js"
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
