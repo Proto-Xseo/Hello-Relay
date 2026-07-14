@@ -11,4 +11,16 @@ title = "Relay Landing — north-mini-code-free (complete)"
 id = "KL-bdPIQUwSdO18750Fzo"
 uri = "file://relay_nemotron.html"
 type = "unspecified"
-title = "Relay Landing — nemotron-3-ultra-free (larger, auto-closed)"
+title = "Relay — Nemotron Ultra Free (72KB)"
+
+[[outputs]]
+id = "TklZKBKc7lzXFimx0bg-Z"
+uri = "file://relay_deepseek.html"
+type = "unspecified"
+title = "Relay — DeepSeek V4 Flash Free (60KB)"
+
+[[outputs]]
+id = "jZkhsdh_l3gz-lE6lyVfr"
+uri = "file://relay_mimo.html"
+type = "unspecified"
+title = "Relay — MiMo v2.5 Free (68KB)"
